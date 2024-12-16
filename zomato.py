@@ -230,7 +230,128 @@ def run_app(db_handler):
                 params = (name, email, phone, location, signup_date, is_premium, preferred_cuisine, 0, 0.0)
                 db_handler.execute_query(query, params)
                 st.success("Customer added successfully!")
+    elif choice == "Update Data":
+        st.subheader("Update Records")
+    table = st.selectbox("Select Table to Update", ["Customers", "Restaurants", "Orders", "Deliveries"])
+    
+    if table == "Customers":
+        record_id = st.number_input("Enter Customer ID to Update", min_value=1)
+        column = st.selectbox("Select Column to Update", 
+                              ["name", "email", "phone", "location", "signup_date", "is_premium", "preferred_cuisine", "total_orders", "average_rating"])
+        new_value = st.text_input(f"Enter New Value for {column}")
 
+        if st.button("Update Customer"):
+            try:
+                if column in ["total_orders", "average_rating"]:  # Ensure correct data types
+                    new_value = float(new_value)
+                elif column == "is_premium":
+                    new_value = True if new_value.lower() == 'true' else False
+                elif column == "signup_date":
+                    new_value = pd.to_datetime(new_value).date()
+                
+                query = f"UPDATE Customers SET {column} = %s WHERE customer_id = %s"
+                db_handler.execute_query(query, (new_value, record_id))
+                st.success("Customer record updated successfully!")
+            except Exception as e:
+                st.error(f"Failed to update record: {e}")
+
+    elif table == "Restaurants":
+        record_id = st.number_input("Enter Restaurant ID to Update", min_value=1)
+        column = st.selectbox("Select Column to Update", 
+                              ["name", "cuisine_type", "location", "owner_name", "average_delivery_time", "contact_number", "rating", "total_orders", "is_active"])
+        new_value = st.text_input(f"Enter New Value for {column}")
+
+        if st.button("Update Restaurant"):
+            try:
+                if column in ["average_delivery_time", "rating", "total_orders"]:  # Ensure correct data types
+                    new_value = float(new_value)
+                elif column == "is_active":
+                    new_value = True if new_value.lower() == 'true' else False
+
+                query = f"UPDATE Restaurants SET {column} = %s WHERE restaurant_id = %s"
+                db_handler.execute_query(query, (new_value, record_id))
+                st.success("Restaurant record updated successfully!")
+            except Exception as e:
+                st.error(f"Failed to update record: {e}")
+
+    elif table == "Orders":
+        record_id = st.number_input("Enter Order ID to Update", min_value=1)
+        column = st.selectbox("Select Column to Update", 
+                              ["customer_id", "restaurant_id", "order_date", "delivery_time", "status", "total_amount", "payment_mode", "discount_applied", "feedback_rating"])
+        new_value = st.text_input(f"Enter New Value for {column}")
+
+        if st.button("Update Order"):
+            try:
+                if column in ["total_amount", "discount_applied", "feedback_rating"]:  # Ensure correct data types
+                    new_value = float(new_value)
+                elif column in ["order_date", "delivery_time"]:
+                    new_value = pd.to_datetime(new_value)
+                
+                query = f"UPDATE Orders SET {column} = %s WHERE order_id = %s"
+                db_handler.execute_query(query, (new_value, record_id))
+                st.success("Order record updated successfully!")
+            except Exception as e:
+                st.error(f"Failed to update record: {e}")
+
+    elif table == "Deliveries":
+        record_id = st.number_input("Enter Delivery ID to Update", min_value=1)
+        column = st.selectbox("Select Column to Update", 
+                              ["order_id", "delivery_status", "distance", "delivery_time", "estimated_time", "delivery_fee", "vehicle_type"])
+        new_value = st.text_input(f"Enter New Value for {column}")
+
+        if st.button("Update Delivery"):
+            try:
+                if column in ["distance", "delivery_time", "estimated_time", "delivery_fee"]:  # Ensure correct data types
+                    new_value = float(new_value)
+
+                query = f"UPDATE Deliveries SET {column} = %s WHERE delivery_id = %s"
+                db_handler.execute_query(query, (new_value, record_id))
+                st.success("Delivery record updated successfully!")
+            except Exception as e:
+                st.error(f"Failed to update record: {e}")
+    elif choice == "Delete Data":
+        st.subheader("Delete Records")
+    table = st.selectbox("Select Table to Delete From", ["Customers", "Restaurants", "Orders", "Deliveries"])
+
+    if table == "Customers":
+        record_id = st.number_input("Enter Customer ID to Delete", min_value=1)
+        if st.button("Delete Customer"):
+            try:
+                query = "DELETE FROM Customers WHERE customer_id = %s"
+                db_handler.execute_query(query, (record_id,))
+                st.success(f"Customer with ID {record_id} deleted successfully!")
+            except Exception as e:
+                st.error(f"Failed to delete Customer record: {e}")
+
+    elif table == "Restaurants":
+        record_id = st.number_input("Enter Restaurant ID to Delete", min_value=1)
+        if st.button("Delete Restaurant"):
+            try:
+                query = "DELETE FROM Restaurants WHERE restaurant_id = %s"
+                db_handler.execute_query(query, (record_id,))
+                st.success(f"Restaurant with ID {record_id} deleted successfully!")
+            except Exception as e:
+                st.error(f"Failed to delete Restaurant record: {e}")
+
+    elif table == "Orders":
+        record_id = st.number_input("Enter Order ID to Delete", min_value=1)
+        if st.button("Delete Order"):
+            try:
+                query = "DELETE FROM Orders WHERE order_id = %s"
+                db_handler.execute_query(query, (record_id,))
+                st.success(f"Order with ID {record_id} deleted successfully!")
+            except Exception as e:
+                st.error(f"Failed to delete Order record: {e}")
+
+    elif table == "Deliveries":
+        record_id = st.number_input("Enter Delivery ID to Delete", min_value=1)
+        if st.button("Delete Delivery"):
+            try:
+                query = "DELETE FROM Deliveries WHERE delivery_id = %s"
+                db_handler.execute_query(query, (record_id,))
+                st.success(f"Delivery with ID {record_id} deleted successfully!")
+            except Exception as e:
+                st.error(f"Failed to delete Delivery record: {e}")            
     elif choice == "Insights":
         st.subheader("Data Insights")
         options = ["Peak Ordering Hours", "Top Cuisines", "Delivery Times"]
