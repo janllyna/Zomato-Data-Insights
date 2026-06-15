@@ -388,7 +388,7 @@ def run_app(db_handler):
             st.bar_chart(df.set_index("Status"))
 
 if __name__ == '__main__':
-    db_handler = DatabaseHandler(host='localhost', user='root', password='janllyn', database='zomato')
+    db_handler = DatabaseHandler(host='localhost', user='root', password='pass', database='zomato')
     init_db(db_handler)
     generate_customers(db_handler)
     generate_restaurants(db_handler)
